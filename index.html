@@ -1,98 +1,173 @@
-<script>
-  let data = [];
-
-  const searchInput = document.getElementById('searchInput');
-  const searchResults = document.getElementById('searchResults');
-  const toggleLibrary = document.getElementById('toggleLibrary');
-  const fullLibrary = document.getElementById('fullLibrary');
-  let libraryVisible = false;
-
-  // 加载数据
-  fetch('data.json')
-    .then(response => response.json())
-    .then(json => {
-      data = json;
-    })
-    .catch(error => {
-      console.error('数据加载失败:', error);
-      alert('无法加载数据文件');
-    });
-
-  function search(keyword) {
-    const results = data.filter(item => item.text.includes(keyword));
-    renderResults(results);
-  }
-
-  function renderResults(results) {
-    searchResults.innerHTML = "";
-    if (results.length === 0) {
-      searchResults.textContent = "未找到匹配内容";
-      return;
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>文本查询工具</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 1em;
+      background: #f5f5f5;
+      color: #333;
     }
-    results.forEach(item => {
-      const div = document.createElement('div');
-      div.className = 'item';
-      div.innerHTML = `
-        <div class="item-text">${escapeHTML(item.text)}</div>
-        <button onclick="copyText('${escapeJS(item.text)}')">复制</button>
-      `;
-      searchResults.appendChild(div);
-    });
-  }
-
-  function renderLibrary() {
-    fullLibrary.innerHTML = "";
-    const sorted = [...data].sort((a, b) => {
-      if (a.fast_moji !== b.fast_moji) return a.fast_moji - b.fast_moji;
-      return a.id - b.id;
-    });
-
-    sorted.forEach(item => {
-      const div = document.createElement('div');
-      div.className = 'item';
-      div.innerHTML = `
-        <div class="item-text">${escapeHTML(item.text)}</div>
-        <button onclick="copyText('${escapeJS(item.text)}')">复制</button>
-      `;
-      fullLibrary.appendChild(div);
-    });
-  }
-
-  function copyText(text) {
-    navigator.clipboard.writeText(text).then(() => {
-      alert("已复制");
-    });
-  }
-
-  // 防止引号破坏HTML结构
-  function escapeHTML(str) {
-    return str.replace(/&/g, "&amp;")
-              .replace(/</g, "&lt;")
-              .replace(/>/g, "&gt;");
-  }
-
-  // 防止引号破坏JS代码字符串
-  function escapeJS(str) {
-    return str.replace(/'/g, "\\'")
-              .replace(/"/g, '\\"')
-              .replace(/\n/g, "\\n");
-  }
-
-  searchInput.addEventListener('keypress', e => {
-    if (e.key === "Enter") {
-      search(e.target.value.trim());
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      background: #fff;
+      padding: 1em;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
     }
-  });
-
-  toggleLibrary.addEventListener('click', () => {
-    libraryVisible = !libraryVisible;
-    if (libraryVisible) {
-      fullLibrary.classList.remove('hidden');
-      toggleLibrary.textContent = "收起全部文本";
-      renderLibrary();
-    } else {
-      fullLibrary.classList.add('hidden');
-      toggleLibrary.textContent = "展开全部文本";
+    input[type="text"] {
+      width: 100%;
+      padding: 0.5em;
+      font-size: 1em;
+      margin-bottom: 1em;
+      border: 1px solid #ccc;
+      border-radius: 4px;
     }
-  });
-</script>
+    button {
+      margin-left: 0.5em;
+      padding: 0.3em 0.6em;
+      font-size: 0.9em;
+      cursor: pointer;
+    }
+    .result, .library {
+      margin-top: 1em;
+    }
+    .item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.5em;
+      border-bottom: 1px solid #ddd;
+    }
+    .item-text {
+      flex: 1;
+      word-break: break-word;
+    }
+    .toggle-btn {
+      display: block;
+      margin-top: 1em;
+      width: 100%;
+      padding: 0.5em;
+      background: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+    }
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>文本查询工具</h2>
+    <input type="text" id="searchInput" placeholder="输入关键字，回车搜索"/>
+    <div class="result" id="searchResults"></div>
+    <button class="toggle-btn" id="toggleLibrary">展开全部文本</button>
+    <div class="library hidden" id="fullLibrary"></div>
+  </div>
+  <script>
+    let data = [];
+
+    const searchInput = document.getElementById('searchInput');
+    const searchResults = document.getElementById('searchResults');
+    const toggleLibrary = document.getElementById('toggleLibrary');
+    const fullLibrary = document.getElementById('fullLibrary');
+    let libraryVisible = false;
+
+    // 加载数据
+    fetch('data.json')
+      .then(response => response.json())
+      .then(json => {
+        data = json;
+      })
+      .catch(error => {
+        console.error('数据加载失败:', error);
+        alert('无法加载数据文件');
+      });
+
+    function search(keyword) {
+      const results = data.filter(item => item.text.includes(keyword));
+      renderResults(results);
+    }
+
+    function renderResults(results) {
+      searchResults.innerHTML = "";
+      if (results.length === 0) {
+        searchResults.textContent = "未找到匹配内容";
+        return;
+      }
+      results.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'item';
+        div.innerHTML = `
+          <div class="item-text">${escapeHTML(item.text)}</div>
+          <button onclick="copyText('${escapeJS(item.text)}')">复制</button>
+        `;
+        searchResults.appendChild(div);
+      });
+    }
+
+    function renderLibrary() {
+      fullLibrary.innerHTML = "";
+      const sorted = [...data].sort((a, b) => {
+        if (a.fast_moji !== b.fast_moji) return a.fast_moji - b.fast_moji;
+        return a.id - b.id;
+      });
+
+      sorted.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'item';
+        div.innerHTML = `
+          <div class="item-text">${escapeHTML(item.text)}</div>
+          <button onclick="copyText('${escapeJS(item.text)}')">复制</button>
+        `;
+        fullLibrary.appendChild(div);
+      });
+    }
+
+    function copyText(text) {
+      navigator.clipboard.writeText(text).then(() => {
+        alert("已复制");
+      });
+    }
+
+    function escapeHTML(str) {
+      return str.replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;");
+    }
+
+    function escapeJS(str) {
+      return str.replace(/\\/g, "\\\\")
+                .replace(/'/g, "\\'")
+                .replace(/"/g, '\\"')
+                .replace(/\n/g, "\\n")
+                .replace(/\r/g, "\\r");
+    }
+
+    searchInput.addEventListener('keypress', e => {
+      if (e.key === "Enter") {
+        search(e.target.value.trim());
+      }
+    });
+
+    toggleLibrary.addEventListener('click', () => {
+      libraryVisible = !libraryVisible;
+      if (libraryVisible) {
+        fullLibrary.classList.remove('hidden');
+        toggleLibrary.textContent = "收起全部文本";
+        renderLibrary();
+      } else {
+        fullLibrary.classList.add('hidden');
+        toggleLibrary.textContent = "展开全部文本";
+      }
+    });
+  </script>
+</body>
+</html>
+
