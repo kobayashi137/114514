@@ -150,13 +150,16 @@
                 .replace(/\r/g, "\\r");
     }
 
+    // 添加阻止事件冒泡，防止 document 点击清空误触
     searchInput.addEventListener('keypress', e => {
+      e.stopPropagation();
       if (e.key === "Enter") {
         search(e.target.value.trim());
       }
     });
 
-    toggleLibrary.addEventListener('click', () => {
+    toggleLibrary.addEventListener('click', e => {
+      e.stopPropagation();
       libraryVisible = !libraryVisible;
       if (libraryVisible) {
         fullLibrary.classList.remove('hidden');
@@ -167,7 +170,9 @@
         toggleLibrary.textContent = "查看文库";
       }
     });
-    document.addEventListener('click',(e) => {
+
+    // 点击页面其他地方清空搜索结果和输入框
+    document.addEventListener('click', (e) => {
       if (!searchInput.contains(e.target) && !toggleLibrary.contains(e.target)) {
         searchInput.value = '';
         searchResults.innerHTML = '';
@@ -176,4 +181,5 @@
   </script>
 </body>
 </html>
+
 
