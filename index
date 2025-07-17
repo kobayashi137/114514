@@ -1,0 +1,98 @@
+<script>
+  let data = [];
+
+  const searchInput = document.getElementById('searchInput');
+  const searchResults = document.getElementById('searchResults');
+  const toggleLibrary = document.getElementById('toggleLibrary');
+  const fullLibrary = document.getElementById('fullLibrary');
+  let libraryVisible = false;
+
+  // 加载数据
+  fetch('data.json')
+    .then(response => response.json())
+    .then(json => {
+      data = json;
+    })
+    .catch(error => {
+      console.error('数据加载失败:', error);
+      alert('无法加载数据文件');
+    });
+
+  function search(keyword) {
+    const results = data.filter(item => item.text.includes(keyword));
+    renderResults(results);
+  }
+
+  function renderResults(results) {
+    searchResults.innerHTML = "";
+    if (results.length === 0) {
+      searchResults.textContent = "未找到匹配内容";
+      return;
+    }
+    results.forEach(item => {
+      const div = document.createElement('div');
+      div.className = 'item';
+      div.innerHTML = `
+        <div class="item-text">${escapeHTML(item.text)}</div>
+        <button onclick="copyText('${escapeJS(item.text)}')">复制</button>
+      `;
+      searchResults.appendChild(div);
+    });
+  }
+
+  function renderLibrary() {
+    fullLibrary.innerHTML = "";
+    const sorted = [...data].sort((a, b) => {
+      if (a.fast_moji !== b.fast_moji) return a.fast_moji - b.fast_moji;
+      return a.id - b.id;
+    });
+
+    sorted.forEach(item => {
+      const div = document.createElement('div');
+      div.className = 'item';
+      div.innerHTML = `
+        <div class="item-text">${escapeHTML(item.text)}</div>
+        <button onclick="copyText('${escapeJS(item.text)}')">复制</button>
+      `;
+      fullLibrary.appendChild(div);
+    });
+  }
+
+  function copyText(text) {
+    navigator.clipboard.writeText(text).then(() => {
+      alert("已复制");
+    });
+  }
+
+  // 防止引号破坏HTML结构
+  function escapeHTML(str) {
+    return str.replace(/&/g, "&amp;")
+              .replace(/</g, "&lt;")
+              .replace(/>/g, "&gt;");
+  }
+
+  // 防止引号破坏JS代码字符串
+  function escapeJS(str) {
+    return str.replace(/'/g, "\\'")
+              .replace(/"/g, '\\"')
+              .replace(/\n/g, "\\n");
+  }
+
+  searchInput.addEventListener('keypress', e => {
+    if (e.key === "Enter") {
+      search(e.target.value.trim());
+    }
+  });
+
+  toggleLibrary.addEventListener('click', () => {
+    libraryVisible = !libraryVisible;
+    if (libraryVisible) {
+      fullLibrary.classList.remove('hidden');
+      toggleLibrary.textContent = "收起全部文本";
+      renderLibrary();
+    } else {
+      fullLibrary.classList.add('hidden');
+      toggleLibrary.textContent = "展开全部文本";
+    }
+  });
+</script>
