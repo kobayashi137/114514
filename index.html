@@ -160,11 +160,17 @@
       libraryVisible = !libraryVisible;
       if (libraryVisible) {
         fullLibrary.classList.remove('hidden');
-        toggleLibrary.textContent = "收起全部文本";
+        toggleLibrary.textContent = "收起文库";
         renderLibrary();
       } else {
         fullLibrary.classList.add('hidden');
-        toggleLibrary.textContent = "展开全部文本";
+        toggleLibrary.textContent = "查看文库";
+      }
+    });
+    document.addEventListener('click',(e) => {
+      if (!searchInput.contains(e.target) && !toggleLibrary.contains(e.target)) {
+        searchInput.value = '';
+        searchResults.innerHTML = '':
       }
     });
   </script>
