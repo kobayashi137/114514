@@ -91,7 +91,14 @@
       });
 
     function search(keyword) {
-      const results = data.filter(item => item.text.includes(keyword));
+      keyword = keyword.trim().toLowerCase(); // 处理大小写和空格
+      if (!keyword) {
+        searchResults.innerHTML = ""; // 清空搜索结果
+        return;
+      }
+      const results = data.filter(item =>
+        item.text.toLowerCase().includes(keyword)
+      );
       renderResults(results);
     }
 
@@ -150,11 +157,11 @@
                 .replace(/\r/g, "\\r");
     }
 
-    // 添加阻止事件冒泡，防止 document 点击清空误触
+    // 绑定搜索事件：按下回车时触发搜索
     searchInput.addEventListener('keypress', e => {
       e.stopPropagation();
       if (e.key === "Enter") {
-        search(e.target.value.trim());
+        search(e.target.value);
       }
     });
 
@@ -181,5 +188,6 @@
   </script>
 </body>
 </html>
+
 
 
