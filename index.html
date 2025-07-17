@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>文本查询工具</title>
+  <title>玩梗学院</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -64,8 +64,8 @@
 </head>
 <body>
   <div class="container">
-    <h2>文本查询工具</h2>
-    <input type="text" id="searchInput" placeholder="输入关键字，回车搜索"/>
+    <h2>玩梗学院</h2>
+    <input type="text" id="searchInput" placeholder="输入关键字搜索"/>
     <div class="result" id="searchResults"></div>
     <button class="toggle-btn" id="toggleLibrary">展开全部文本</button>
     <div class="library hidden" id="fullLibrary"></div>
@@ -116,7 +116,7 @@
       fullLibrary.innerHTML = "";
       const sorted = [...data].sort((a, b) => {
         if (a.fast_moji !== b.fast_moji) return a.fast_moji - b.fast_moji;
-        return a.id - b.id;
+        return (a.id || 0) - (b.id || 0); // 防止 id 未定义
       });
 
       sorted.forEach(item => {
