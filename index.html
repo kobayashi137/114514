@@ -60,6 +60,32 @@
     .hidden {
       display: none;
     }
+
+    /* 滚动限制的文库展示区域 */
+    .library {
+      max-height: 400px;
+      overflow-y: auto;
+      border: 1px solid #ccc;
+      padding: 0.5em;
+      border-radius: 4px;
+      background-color: #fafafa;
+    }
+
+    /* 美化滚动条样式 */
+    .library::-webkit-scrollbar {
+      width: 6px;
+    }
+    .library::-webkit-scrollbar-thumb {
+      background-color: #bbb;
+      border-radius: 3px;
+    }
+
+    /*  移动端适配 */
+    @media (max-width: 600px) {
+      .library {
+        max-height: 60vh;
+      }
+    }
   </style>
 </head>
 <body>
@@ -123,7 +149,7 @@
       fullLibrary.innerHTML = "";
       const sorted = [...data].sort((a, b) => {
         if (a.fast_moji !== b.fast_moji) return a.fast_moji - b.fast_moji;
-        return (a.id || 0) - (b.id || 0); // 防止 id 未定义
+        return (a.id || 0) - (b.id || 0);
       });
 
       sorted.forEach(item => {
@@ -157,7 +183,6 @@
                 .replace(/\r/g, "\\r");
     }
 
-    // 绑定搜索事件：按下回车时触发搜索
     searchInput.addEventListener('keypress', e => {
       e.stopPropagation();
       if (e.key === "Enter") {
@@ -178,7 +203,6 @@
       }
     });
 
-    // 点击页面其他地方清空搜索结果和输入框
     document.addEventListener('click', (e) => {
       if (!searchInput.contains(e.target) && !toggleLibrary.contains(e.target)) {
         searchInput.value = '';
